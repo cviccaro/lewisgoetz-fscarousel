@@ -1,0 +1,384 @@
+@import "compass/css3";
+@import "font-awesome";
+
+$yellow: #ffb700;
+$dark_grey: #222;
+$light_grey: #a1a2a6;
+$header_pattern_url: url('../images/header-pattern.png');
+$header_height: 71px;
+$footer_height: 71px;
+$site_font: Arial, sans-serif;
+
+html{
+	height: 100%;
+	max-height: 1200px;
+	font-family: $site_font;
+}
+body {
+	min-height: 100%;
+	height: 100%;
+	background: $dark_grey;
+}
+html,body {
+	margin: 0;
+	width: 100%;
+}
+* {
+	@include box-sizing(border-box);
+}
+.fscarousel-wrapper {
+	width: 100%;
+	height: 100%;
+	min-height: 100%;
+	position: relative;
+	overflow: hidden;
+	header {
+		background: $header_pattern_url top left repeat transparent;
+		width: 100%;
+		height: $header_height;
+		z-index: 2;
+		position:relative;
+		.logo {
+			float: left;
+		}
+		.fscarousel-chapter-menu-wrapper {
+			float: left;
+			background: $yellow;
+			padding: 1em;
+			height: 100%;
+			min-width: 265px;
+			cursor: pointer;
+			.icon-wrapper {
+				float: left;
+				line-height: 2.5em;
+				vertical-align: middle;
+			}
+			.titles-wrapper {
+				float: left;
+				margin: 0.5em 0 0 1.5em;
+				color: $dark_grey;
+			}
+		}
+		.fscarousel-chapter-menu {
+			@include box-shadow(2px 2px 2px rgba(0,0,0,0.25));
+		}
+		.fscarousel-header-buttons {
+			float: right;
+			.fscarousel-button {
+				width: 42px;
+				height: 35px;
+				line-height: 35px;
+				vertical-align: middle;
+				text-align: center;
+			}
+		}
+	}
+	footer {
+		z-index: 2;
+		width: 100%;
+		height: $footer_height;
+		position: fixed;
+		bottom: 0;
+		left: 0;
+		.fscarousel-navigation-wrapper {
+			height: 100%;
+			width: 100%;
+			@include display-flex;
+			@include flex-direction(row);
+			background: $header_pattern_url top left repeat transparent;
+			.fscarousel-nav-canvas {
+				//background: $header_pattern_url top left repeat transparent;
+				@include display-flex;
+				@include flex-grow(2);
+				overflow: visible;
+				position: relative;
+				.fscarousel-nav-select {
+					width: 100%;
+					@include display-flex;
+					@include flex-grow(2);
+				}
+				.fscarousel-chapter-thumbs {
+					@include display-flex;
+					@include flex-shrink(0);
+					overflow: visible;
+				}
+			}
+		}
+	}
+	.fscarousel-button-nav-prev,
+	.fscarousel-button-nav-next {
+		width: 42px;
+		height: 100%;
+		line-height: $header_height;
+		text-align: center;
+		z-index: 10;
+		i {
+			vertical-align: middle;
+		}
+		@include flex-shrink(0);
+		@include flex-grow(0);
+	}
+	.fscarousel-button-nav-prev,
+	.fscarousel-button-nav-next,
+	.fscarousel-nav-select {
+		float: left;
+	}
+	.fscarousel-nav-select {
+		@include flex-grow(2);
+		z-index: 5;
+		position: relative;
+		top: 0;
+		left: 0;
+	}
+}
+
+.fscarousel-chapter-menu {
+	background: $dark_grey;
+	opacity: 0.9;
+	padding: 1em 2em;
+	list-style: none;
+	li {
+		float: left;
+		clear: both;
+		width: 100%;
+		margin: 0.1em 0;
+		a {
+			text-transform: uppercase;
+			font-weight: bold;
+			font-size: 11px;
+			color: $light_grey;
+			text-decoration: none;
+		}
+		&.active a,
+		a:hover {
+			color: $yellow;
+		}
+	}
+}
+
+#fscarousel_canvas {
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	z-index: 1;
+	.fscarousel-chapter-images {
+		display: block;
+		position:relative;
+		width: 100%;
+		height: 100%;
+		.fscarousel-image {
+			display: block;
+			width: 100%;
+		}
+		div.fscarousel-image {
+			height: 100%;
+			float: left;
+			clear: both;
+			@include background-size(cover);
+		}
+	}
+}
+h2 {
+	font-size: 14px;
+	font-weight: bold;
+	margin: 0.25em 0 0 0;
+}
+#fscarousel_carousel_title {
+	font-size: 8px;
+	font-weight: bold;
+	text-transform: uppercase;
+	margin: 0;
+	float: left;
+	clear:both;
+}
+#fscarousel_chapter_title {
+	float: left;
+	clear:both;
+}
+
+.fscarousel-button {
+	cursor: pointer;
+	background:$dark_grey;
+	color: $yellow;
+	&.fscarousel-button-info {
+		background: $yellow;
+		color: $dark_grey;
+	}
+	&.fscarousel-button-exit {
+		border-left: 1px solid $yellow;
+	}
+	&.fscarousel-button-nav-prev {
+		border-right: 1px solid $yellow;
+	}
+	&.fscarousel-button-nav-next {
+		border-left: 1px solid $yellow;
+	}
+}
+
+.fscarousel-chapter-thumb-cover {
+	background: $yellow;
+	color: $dark_grey;
+	text-align: center;
+	font-weight: bold;
+	margin-left: 1em;
+	cursor: pointer;
+	@include box-shadow(0px 0px 15px 5px rgba(0,0,0,0.20) inset);
+	@include display-flex;
+	@include flex-direction(column);
+	@include justify-content(center);
+	.fscarousel-chapter-thumb-cover-title {
+		margin: 0 auto;
+	}
+}
+html.no-flexbox {
+	.fscarousel-chapter-thumb-cover {
+		.fscarousel-chapter-thumb-cover-title {
+			padding-top: 1em;
+		}
+	}
+	.fscarousel-button-nav-next,
+	.fscarousel-button-nav-prev {
+		z-index: 1;
+		float: left;
+	}
+	.fscarousel-nav-canvas {
+		overflow: hidden!important;
+		z-index: 2;
+		float: left;
+	}
+	.fscarousel-nav-select {
+		width: 200%;
+		overflow: visible;
+	}
+	.fscarousel-chapter-thumbs {
+		display: inline;
+	}
+}
+.fscarousel-chapter-thumb {
+	height: 62px;
+	margin: 0.25em 0.5em;
+	width: 120px;
+	border: 1px solid $yellow;
+	float: left;
+	overflow: hidden;
+	@include flex-shrink(0);
+	.fscarousel-chapter-thumb-img {
+		max-width: 100%;
+	}
+}
+
+.fscarousel-chapter-thumb {
+	&.active {
+		@include box-shadow(0px 0px 10px 2px rgba(255, 183, 0, 0.66));
+	}
+}
+.fscarousel-infobox {
+	@include display-flex;
+	@include flex-direction(column);
+	position: absolute;
+	top: $header_height - 1;
+	right: 0;
+	min-width: 291px;
+	min-height: 110px;
+	background: $yellow;
+	color: $dark_grey;
+	z-index: 10;
+	padding: 1em 2em;
+	.title {
+		color: $dark_grey;
+		@include flex-grow(1);
+	}
+	.caption {
+		line-height: 16px;
+		font-size: 12px;
+		color: $dark_grey;
+		max-width: 300px;
+		@include flex-grow(2);
+		//text-indent: 3em;
+	}
+	@include box-shadow(-2px 2px 2px rgba(0,0,0,0.25));
+}
+
+
+.fscarousel-wrapper.cssanimations {
+	.fscarousel-chapter-images {
+		@include transition(all .5s ease-in-out);
+		//@include translateZ(0);
+	}
+	.fscarousel-nav-select {
+		@include transition(all .25s ease-out);
+		// @include backface-visibility(hidden);
+		// @include perspective(1000);
+		//@include translateZ(0);
+	}
+}
+body.cssmultiplier2,
+body.cssmultiplier3,
+body.cssmultiplier4,
+body.cssmultiplier5,
+body.cssmultiplier6 {
+	.fscarousel-wrapper.cssanimations {
+		.fscarousel-chapter-images {
+			@include transition(all 2s ease-out);
+		}
+		.fscarousel-nav-select {
+			@include transition(none);
+		}
+	}
+}
+
+body.cssmultiplier7,
+body.cssmultiplier8,
+body.cssmultiplier9,
+body.cssmultiplier10,
+body.cssmultiplier11,
+body.cssmultiplier12,
+body.cssmultiplier13,
+body.cssmultiplier14,
+body.cssmultiplier15 {
+	.fscarousel-wrapper.cssanimations {
+		.fscarousel-chapter-images {
+			@include transition(all 3s ease-in-out);
+		}
+		.fscarousel-nav-select {
+				@include transition(none);
+		}
+	}
+}
+
+html.no-csstransforms3d {
+	.fscarousel-wrapper {
+		.fscarousel-chapter-images,
+		.fscarousel-nav-select {
+			@include transition(none);
+		}
+	}
+}
+
+#preloader {
+	position: fixed;
+	top: 0;
+	left: 0;
+	bottom: 0;
+	right: 0;
+	height: 100%;
+	width: 100%;
+	z-index: 999;
+	background: rgba(0,0,0,0.9);
+	text-align: center;
+	p,.loading {
+		margin: 0 auto;
+	}
+	color: #fff;
+	.loading {
+		max-width: 32px;
+		position: relative;
+		top: 48%
+	}
+	.logo,p {
+		position: relative;
+		top: 35%;
+	}
+}

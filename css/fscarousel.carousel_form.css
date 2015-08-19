@@ -1,0 +1,259 @@
+/* line 5, ../sass/fscarousel.carousel_form.scss */
+#page-title {
+  margin-bottom: 2em;
+}
+
+/* line 10, ../sass/fscarousel.carousel_form.scss */
+.chapters-fieldset > legend {
+  font-size: 22px;
+}
+/* line 13, ../sass/fscarousel.carousel_form.scss */
+.chapters-fieldset > .fieldset-wrapper {
+  margin-top: 2em;
+}
+
+/* line 17, ../sass/fscarousel.carousel_form.scss */
+.chapter-fieldset {
+  margin: 1em 0;
+  border: 1px solid #aaaaaa;
+  padding: 1em;
+}
+/* line 21, ../sass/fscarousel.carousel_form.scss */
+.chapter-fieldset > legend {
+  font-size: 16px;
+}
+/* line 24, ../sass/fscarousel.carousel_form.scss */
+.chapter-fieldset .remove-chapter {
+  margin-top: 1em;
+}
+
+/* line 28, ../sass/fscarousel.carousel_form.scss */
+fieldset.chapter-images-fieldset,
+fieldset.chapter-images-fieldset.collapsible {
+  padding: 1em;
+  margin: 1.5em 0 0;
+}
+/* line 32, ../sass/fscarousel.carousel_form.scss */
+fieldset.chapter-images-fieldset > legend,
+fieldset.chapter-images-fieldset.collapsible > legend {
+  font-size: 14px;
+}
+/* line 35, ../sass/fscarousel.carousel_form.scss */
+fieldset.chapter-images-fieldset .file-wrapper,
+fieldset.chapter-images-fieldset.collapsible .file-wrapper {
+  clear: left;
+}
+/* line 38, ../sass/fscarousel.carousel_form.scss */
+fieldset.chapter-images-fieldset .file-wrapper, fieldset.chapter-images-fieldset .button-wrapper,
+fieldset.chapter-images-fieldset.collapsible .file-wrapper,
+fieldset.chapter-images-fieldset.collapsible .button-wrapper {
+  float: left;
+}
+/* line 41, ../sass/fscarousel.carousel_form.scss */
+fieldset.chapter-images-fieldset .button-wrapper,
+fieldset.chapter-images-fieldset.collapsible .button-wrapper {
+  float: left;
+}
+/* line 43, ../sass/fscarousel.carousel_form.scss */
+fieldset.chapter-images-fieldset .button-wrapper:last-child,
+fieldset.chapter-images-fieldset.collapsible .button-wrapper:last-child {
+  clear: both;
+}
+
+/* line 48, ../sass/fscarousel.carousel_form.scss */
+.chapter-image-fieldset {
+  margin-top: 2em;
+  padding: 1em;
+}
+/* line 49, ../sass/fscarousel.carousel_form.scss */
+.chapter-image-fieldset:first-child {
+  margin-top: 0;
+}
+/* line 54, ../sass/fscarousel.carousel_form.scss */
+.chapter-image-fieldset > legend {
+  font-size: 16px;
+  padding-bottom: 10px;
+  margin-left: -10px;
+  font-weight: bold;
+}
+
+/* line 61, ../sass/fscarousel.carousel_form.scss */
+legend + .chapter-image-fieldset {
+  margin-top: 0;
+}
+
+/* line 65, ../sass/fscarousel.carousel_form.scss */
+.file-wrapper {
+  float: left;
+  clear: none;
+  margin-right: 2em;
+}
+/* line 69, ../sass/fscarousel.carousel_form.scss */
+.file-wrapper > label {
+  float: left;
+  clear: none;
+}
+/* line 73, ../sass/fscarousel.carousel_form.scss */
+.file-wrapper > .remove-image {
+  float: left;
+  margin-left: 7px;
+  clear: right;
+}
+/* line 78, ../sass/fscarousel.carousel_form.scss */
+.file-wrapper > img {
+  margin-top: 1em;
+  float: left;
+  clear: both;
+}
+/* line 83, ../sass/fscarousel.carousel_form.scss */
+.file-wrapper input[type="file"] {
+  float: left;
+  margin-left: 0.5em;
+}
+
+/* line 88, ../sass/fscarousel.carousel_form.scss */
+.button-wrapper + .textarea-wrapper {
+  margin-left: 2em;
+}
+
+/* line 91, ../sass/fscarousel.carousel_form.scss */
+.chapter-image-fieldset + .button-wrapper {
+  margin-top: 2em;
+}
+
+/* line 94, ../sass/fscarousel.carousel_form.scss */
+.textarea-wrapper {
+  float: left;
+  clear: none;
+}
+/* line 97, ../sass/fscarousel.carousel_form.scss */
+.textarea-wrapper label {
+  float: left;
+  clear: both;
+  margin-bottom: 5px;
+}
+/* line 102, ../sass/fscarousel.carousel_form.scss */
+.textarea-wrapper textarea {
+  float: left;
+  clear: both;
+}
+/* line 106, ../sass/fscarousel.carousel_form.scss */
+.textarea-wrapper + .form-item {
+  float: left;
+  clear: both;
+}
+
+/* line 112, ../sass/fscarousel.carousel_form.scss */
+#fscarousel-carousel-form input[type="submit"] {
+  margin-top: 2em;
+  -moz-appearance: button;
+  -webkit-appearance: button;
+}
+
+/* line 118, ../sass/fscarousel.carousel_form.scss */
+.image-preview {
+  max-width: 360px;
+}
+
+/* line 122, ../sass/fscarousel.carousel_form.scss */
+ul.errors {
+  padding: 15px;
+  border: 1px solid #cd0a0a;
+  background: #fef1ec;
+}
+/* line 126, ../sass/fscarousel.carousel_form.scss */
+ul.errors li.error {
+  color: #cd0a0a;
+}
+
+/* line 132, ../sass/fscarousel.carousel_form.scss */
+#fscarousel-carousel-settings-form .form-item, #fscarousel-carousel-settings-form .submit-wrapper {
+  clear: both;
+}
+/* line 135, ../sass/fscarousel.carousel_form.scss */
+#fscarousel-carousel-settings-form .form-item, #fscarousel-carousel-settings-form .file-wrapper, #fscarousel-carousel-settings-form .submit-wrapper, #fscarousel-carousel-settings-form .button-wrapper {
+  float: left;
+  margin: 0.5em 0;
+}
+/* line 139, ../sass/fscarousel.carousel_form.scss */
+#fscarousel-carousel-settings-form .file-wrapper {
+  clear: left;
+}
+/* line 142, ../sass/fscarousel.carousel_form.scss */
+#fscarousel-carousel-settings-form .file-wrapper + .button_wrapper {
+  margin: 0 0.5em;
+}
+/* line 146, ../sass/fscarousel.carousel_form.scss */
+#fscarousel-carousel-settings-form .form-item label, #fscarousel-carousel-settings-form .file-wrapper label {
+  min-width: 100px;
+  display: inline-block;
+}
+/* line 151, ../sass/fscarousel.carousel_form.scss */
+#fscarousel-carousel-settings-form .submit-wrapper {
+  margin-top: 2em;
+}
+/* line 154, ../sass/fscarousel.carousel_form.scss */
+#fscarousel-carousel-settings-form fieldset.animation-options .form-item {
+  padding-left: 2em;
+}
+
+/* line 159, ../sass/fscarousel.carousel_form.scss */
+fieldset.collapsible {
+  position: relative;
+  border: solid 1px #aaaaaa;
+  border-top: 3px solid #0074BD;
+  padding: 12px;
+  margin: 0 0 20px;
+}
+/* line 165, ../sass/fscarousel.carousel_form.scss */
+fieldset.collapsible > legend {
+  margin: 0;
+  padding: 0;
+}
+/* line 168, ../sass/fscarousel.carousel_form.scss */
+fieldset.collapsible > legend .fieldset-legend {
+  margin: 0px;
+  line-height: 9px;
+  background: url(../images/menu-expanded.png) 5px 65% no-repeat;
+  padding-left: 15px;
+  display: block;
+}
+/* line 174, ../sass/fscarousel.carousel_form.scss */
+fieldset.collapsible > legend .fieldset-legend span.summary {
+  color: #999;
+  font-size: 0.9em;
+  margin-left: 0.5em;
+}
+/* line 181, ../sass/fscarousel.carousel_form.scss */
+fieldset.collapsible.collapsed {
+  border-bottom-width: 0;
+  border-left-width: 0;
+  border-right-width: 0;
+  height: 1em;
+}
+/* line 186, ../sass/fscarousel.carousel_form.scss */
+fieldset.collapsible.collapsed .fieldset-legend {
+  background: url(../images/menu-collapsed.png) 5px 50% no-repeat;
+}
+
+/* line 192, ../sass/fscarousel.carousel_form.scss */
+.element-invisible {
+  position: absolute !important;
+  clip: rect(1px 1px 1px 1px);
+  clip: rect(1px, 1px, 1px, 1px);
+  overflow: hidden;
+  height: 1px;
+}
+
+/* line 200, ../sass/fscarousel.carousel_form.scss */
+.page-description {
+  margin: 2em 0;
+  font-size: 14px;
+  font-style: italic;
+}
+
+/* line 206, ../sass/fscarousel.carousel_form.scss */
+.help-list {
+  list-style: inside disc;
+  font-size: 12px;
+}

@@ -1,0 +1,128 @@
+***************
+*** 60,65 ****
+  */
+  Class krumo {
+  
+  	/**
+  	* Return Krumo version
+  	*
+--- 60,67 ----
+  */
+  Class krumo {
+  
++ 	static $objectMarkers = array();
++ 
+  	/**
+  	* Return Krumo version
+  	*
+***************
+*** 610,623 ****
+  <?php
+  		// flee the hive
+  		//
+- 		$_recursion_marker = krumo::_marker();
+  		if ($hive =& krumo::_hive($dummy)) {
+  			foreach($hive as $i=>$bee){
+- 				if (is_object($bee)) {
+- 					unset($hive[$i]->$_recursion_marker);
+- 					} else {
+- 					unset($hive[$i][$_recursion_marker]);
+- 					}
+  				}
+  			}
+  
+--- 612,620 ----
+  <?php
+  		// flee the hive
+  		//
+  		if ($hive =& krumo::_hive($dummy)) {
+  			foreach($hive as $i=>$bee){
++ 				krumo::unsetMarker($hive[$i]);
+  				}
+  			}
+  
+***************
+*** 925,934 ****
+  			
+  			// stain it
+  			//
+- 			$_recursion_marker = krumo::_marker();
+- 			(is_object($bee))
+- 				? @($bee->$_recursion_marker++)
+- 				: @($bee[$_recursion_marker]++);
+  			
+  			$_[0][] =& $bee;
+  			}
+--- 922,928 ----
+  			
+  			// stain it
+  			//
++ 			krumo::setMarker($bee);
+  			
+  			$_[0][] =& $bee;
+  			}
+***************
+*** 955,963 ****
+  		// prevent endless recursion loops
+  		//
+  		$_recursion_marker = krumo::_marker();
+- 		$_r = ($_is_object)
+- 			? @$data->$_recursion_marker
+- 			: @$data[$_recursion_marker] ;
+  		$_r = (integer) $_r;
+  
+  		// recursion detected
+--- 949,955 ----
+  		// prevent endless recursion loops
+  		//
+  		$_recursion_marker = krumo::_marker();
++ 		$_r = krumo::getMarker($data);
+  		$_r = (integer) $_r;
+  
+  		// recursion detected
+***************
+*** 1288,1294 ****
+  		}
+  
+  	// -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- 
+  
+  //--end-of-class--	
+  }
+  
+--- 1280,1315 ----
+  		}
+  
+  	// -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- 
++ 	
++ 	private static function setMarker(&$obj) {
++ 		if (is_object($obj)) {
++ 			krumo::$objectMarkers[spl_object_hash($obj)] = 1;
++ 			} else {
++ 			$_recursion_marker = krumo::_marker();
++ 			$obj[$_recursion_marker] = 1;
++ 			}
++ 		}
+  
++ 	private static function getMarker(&$obj) {
++ 		if (is_object($obj)) {
++ 			return isset(krumo::$objectMarkers[spl_object_hash($obj)])
++ 				? krumo::$objectMarkers[spl_object_hash($obj)] : null;
++ 			} else {
++ 			$_recursion_marker = krumo::_marker();
++ 			return isset($obj[$_recursion_marker])
++ 				? $obj[$_recursion_marker] : null;
++ 			}
++ 		}
++ 
++ 	private static function unsetMarker(&$obj) {
++ 		if (is_object($obj)) {
++ 			unset(krumo::$objectMarkers[spl_object_hash($obj)]);
++ 			} else {
++ 			$_recursion_marker = krumo::_marker();
++ 			unset($obj[$_recursion_marker]);
++ 			}
++ 		}
++ 
+  //--end-of-class--	
+  }
+  

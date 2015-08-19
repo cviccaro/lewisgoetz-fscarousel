@@ -1,0 +1,209 @@
+@import "compass/css3";
+
+$border_color: #aaa;
+
+#page-title {
+	margin-bottom: 2em;
+}
+
+.chapters-fieldset {
+	& > legend {
+		font-size: 22px;
+	}
+	& > .fieldset-wrapper {
+		margin-top: 2em;
+	}
+}
+.chapter-fieldset {
+	margin: 1em 0;
+	border: 1px solid $border_color;
+	padding: 1em;
+	& > legend {
+		font-size: 16px;
+	}
+	.remove-chapter {
+		margin-top: 1em;
+	}
+}
+fieldset.chapter-images-fieldset,
+fieldset.chapter-images-fieldset.collapsible {
+	padding: 1em;
+	margin: 1.5em 0 0;
+	& > legend {
+		font-size: 14px;
+	}
+	.file-wrapper {
+		clear: left;
+	}
+	.file-wrapper, .button-wrapper {
+		float: left;
+	}
+	.button-wrapper {
+		float: left;
+		&:last-child {
+			clear: both;
+		}
+	}
+}
+.chapter-image-fieldset {
+	&:first-child {
+		margin-top: 0;
+	}
+	margin-top: 2em;
+	padding: 1em;
+	& > legend {
+		font-size: 16px;
+		padding-bottom: 10px;
+		margin-left:-10px;
+		font-weight: bold;
+	}
+}
+legend + .chapter-image-fieldset {
+	margin-top: 0;
+}
+
+.file-wrapper {
+	float: left;
+	clear: none;
+	margin-right: 2em;
+	& > label {
+		float: left; 
+		clear: none;
+	}
+	& > .remove-image {
+		float: left; 
+		margin-left: 7px;
+		clear: right;
+	}
+	& > img {
+		margin-top: 1em;
+		float: left;
+		clear: both;
+	}
+	input[type="file"] {
+		float: left;
+		margin-left: 0.5em;
+	}
+}
+.button-wrapper + .textarea-wrapper {
+	margin-left: 2em;
+}
+.chapter-image-fieldset + .button-wrapper {
+	margin-top: 2em;
+}
+.textarea-wrapper {
+	float: left;
+	clear: none;
+	label {
+		float: left;
+		clear: both;
+		margin-bottom: 5px;
+	}
+	textarea {
+		float: left; 
+		clear: both;
+	}
+	& + .form-item {
+		float: left;
+		clear:both;
+	}
+}
+#fscarousel-carousel-form {
+	input[type="submit"] {
+		margin-top: 2em;
+		@include appearance(button);
+	}
+}
+
+.image-preview {
+	max-width: 360px;
+}
+
+ul.errors {
+	padding: 15px;
+	border: 1px solid #cd0a0a;
+	background: #fef1ec;
+	li.error {
+		color: #cd0a0a;
+	}
+}
+
+#fscarousel-carousel-settings-form {
+	.form-item, .submit-wrapper {
+		clear: both;
+	}
+	.form-item,.file-wrapper,.submit-wrapper,.button-wrapper {
+		float: left;
+		margin: 0.5em 0;
+	}
+	.file-wrapper {
+		clear: left;
+	}
+	.file-wrapper+.button_wrapper {
+		margin: 0 0.5em;
+	}
+	.form-item,.file-wrapper {
+		label {
+			min-width: 100px;
+			display: inline-block;
+		}
+	}
+	.submit-wrapper {
+		margin-top: 2em;
+	}
+	fieldset.animation-options .form-item {
+		padding-left: 2em;
+	}
+}
+
+fieldset.collapsible {
+	position: relative;
+	border: solid 1px $border_color;
+  	border-top: 3px solid #0074BD;
+  	padding: 12px;
+  	margin: 0 0 20px;
+  	& > legend {
+  		 margin: 0;
+  		 padding: 0;
+  		.fieldset-legend {
+  			margin: 0px;
+  			line-height: 9px;
+  		  background: url(../images/menu-expanded.png) 5px 65% no-repeat;
+  		  padding-left: 15px;
+  		  display: block;
+  		  span.summary {
+  		    color: #999;
+  		    font-size: 0.9em;
+  		    margin-left: 0.5em;
+  		  }
+  		}
+  	}
+  	&.collapsed {
+		border-bottom-width: 0;
+		border-left-width: 0;
+		border-right-width: 0;
+		height: 1em;
+		.fieldset-legend {
+			background: url(../images/menu-collapsed.png) 5px 50% no-repeat;
+		}
+  	}
+}
+
+.element-invisible {
+  position: absolute !important;
+  clip: rect(1px 1px 1px 1px);
+  clip: rect(1px, 1px, 1px, 1px);
+  overflow: hidden;
+  height: 1px;
+}
+
+.page-description {
+	margin: 2em 0;
+	font-size: 14px;
+	font-style: italic;
+}
+
+.help-list {
+	list-style: inside disc;
+	font-size: 12px;
+}
