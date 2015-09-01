@@ -2,7 +2,7 @@
 	var supportedDisplayMethods = ['stacked', 'slide'];
 	var _currentImage;
 	var _currentChapter;
-	var _currentImageDelta;
+	var _currentImageId;
 	var _options;
 	var $ul;
 	var playTimer;
@@ -14,7 +14,7 @@
 	var _lastMultiplier = 0;
 
 	var methods = {
-		init: function( options ){
+		init: function(options) {
 			var opts = $.extend({}, $.fn.fscarousel.defaults, options);
 			_options = opts;
 
@@ -23,11 +23,9 @@
 				var option = _options[key];
 				if (option.hasOwnProperty('duration')) {
 					_options[key].duration = parseInt(option.duration);
-				}
-				else if (option === '1') {
+				} else if (option === '1') {
 					option = true;
-				}
-				else if (option == '0') {
+				} else if (option == '0') {
 					option = false;
 				}
 			}
@@ -45,18 +43,17 @@
 			//console.log('fscarousel init with options: ', _options);
 
 			return this.each(function() {
-				var that	= this;
-				var elem 	= $(this);
-				var images 	= $(opts.selectors.chapterImagesWrapper, elem);
-				var thumbs 	= $(opts.selectors.chapterThumbsWrapper, elem);
+				var that = this;
+				var elem = $(this);
+				var images = $(opts.selectors.chapterImagesWrapper, elem);
+				var thumbs = $(opts.selectors.chapterThumbsWrapper, elem);
 
 				var $exitButton = $('.fscarousel-button.fscarousel-button-exit');
 				var $infoButton = $('.fscarousel-button.fscarousel-button-info')
 				var $infobox = $('.fscarousel-infobox');
 				if ($infobox.length) {
 					$infobox.hide();
-				}
-				else {
+				} else {
 					$infobox = $('<div id="fscarousel_infobox" class="fscarousel-infobox" />');
 					$(_options.selectors.header).after($infobox);
 				}
@@ -67,40 +64,48 @@
 				_currentImage = null;
 
 				// Position the menu
-				var $select_wrapper = $('.fscarousel-chapter-menu-wrapper', elem);		
+				var $select_wrapper = $('.fscarousel-chapter-menu-wrapper', elem);
 
 				$ul.css({
 					position: 'absolute',
 					width: $select_wrapper.outerWidth()
 				})
-				.position({my: 'center top', at: 'center bottom', of: $select_wrapper})
-				
+					.position({
+						my: 'center top',
+						at: 'center bottom',
+						of: $select_wrapper
+					})
+
 				/**
 				 * EVENT HANDLERS
 				 **/
-	
+
 				// HOVER
 				var hoverOut;
 				$ul.hover(function() {
 					clearTimeout(hoverOut);
-				},function() {
+				}, function() {
 					$ul.fadeOut(_options.navigationAnimationOptions);
 				})
 
 				$select_wrapper
-				.hover(
-					function(event) {
-						clearTimeout(hoverOut);
-						var $select_wrapper = $('.fscarousel-chapter-menu-wrapper', elem);
-						$ul
-						.fadeIn(_options.navigationAnimationOptions)
-						.position({my: 'center top', at: 'center bottom', of: $select_wrapper})
-					},
-					function(event) {
-						hoverOut = setTimeout(function() {
-							$ul.fadeOut(_options.navigationAnimationOptions);
-						},500);
-					}
+					.hover(
+						function(event) {
+							clearTimeout(hoverOut);
+							var $select_wrapper = $('.fscarousel-chapter-menu-wrapper', elem);
+							$ul
+								.fadeIn(_options.navigationAnimationOptions)
+								.position({
+									my: 'center top',
+									at: 'center bottom',
+									of: $select_wrapper
+								})
+						},
+						function(event) {
+							hoverOut = setTimeout(function() {
+								$ul.fadeOut(_options.navigationAnimationOptions);
+							}, 500);
+						}
 				);
 
 				// CLICK: Chapter Dropdown Menu
@@ -117,10 +122,10 @@
 				// CLICK: Image Thumbnails
 				thumbs.find('a.fscarousel-chapter-thumb-link').once('fsclick').click(function(event) {
 					event.preventDefault();
-					var image_delta = $(this).children('.fscarousel-chapter-thumb-img').attr('data-delta');
+					var image_id = $(this).children('.fscarousel-chapter-thumb-img').attr('data-image-id');
 					var chapter_id = $(this).parents('.fscarousel-chapter-thumbs').attr('data-chapter-id');
-					if (elem.fscarousel('currentChapter') != chapter_id || elem.fscarousel('currentImage').attr('data-delta') != image_delta) {
-						elem.fscarousel('selectChapterImageAtDelta', chapter_id, image_delta);
+					if (elem.fscarousel('currentChapter') != chapter_id || elem.fscarousel('currentImage').attr('data-image-id') != image_id) {
+						elem.fscarousel('selectChapterImageById', chapter_id, image_id);
 					}
 				})
 
@@ -142,13 +147,13 @@
 				// CLICK: Exit
 				$exitButton.click(function(event) {
 					event.preventDefault();
-					switch(_options.exit_destination) {
+					switch (_options.exit_destination) {
 						case 'back':
 							window.history.back();
-						break;
+							break;
 						case 'custom':
 							window.location.href = _options.exit_destination_custom;
-						break;
+							break;
 					}
 				})
 
@@ -159,9 +164,9 @@
 
 				// CLICK: Nav Prev/Next
 				// These are scrollers, not silde changes
-				$buttonPrevious = 	$('.fscarousel-button-nav-prev'),
-				$buttonNext		=	$('.fscarousel-button-nav-next'),
-				$nav 			= 	$('.fscarousel-nav-select');
+				$buttonPrevious = $('.fscarousel-button-nav-prev'),
+				$buttonNext = $('.fscarousel-button-nav-next'),
+				$nav = $('.fscarousel-nav-select');
 
 				$buttonNext.mousedown(function() {
 					if (!$nav.is(':animated')) {
@@ -209,14 +214,13 @@
 					clearTimeout(refresh);
 					refresh = setTimeout(function() {
 						elem.fscarousel('showImage');
-					},250);
+					}, 250);
 				})
 
 				// Select a chapter
 				if (_options.hasOwnProperty('default_chapter_id') && _options.default_chapter_id != null) {
 					elem.fscarousel('selectChapter', _options.default_chapter_id);
-				}
-				else {
+				} else {
 					var chapter_id = $(images[0]).attr('data-chapter-id');
 					elem.fscarousel('selectChapter', chapter_id);
 				}
@@ -227,7 +231,7 @@
 				}
 			});
 		},
-		selectChapter: function( chapter_id, image_index ) {
+		selectChapter: function(chapter_id, image_index) {
 			_currentChapter = chapter_id;
 			var element = this[0];
 			// Choose menu option
@@ -243,27 +247,27 @@
 			var $thumb = $thumbs.find('.fscarousel-chapter-thumb-cover');
 			var idx = $thumb.index('.fscarousel-chapter-thumb');
 			var $nav = $thumbs.parents('.fscarousel-nav-select');
-						
+
 			// Calculate offset manually instead of relying on $.offset because it is getting it wrong for IE.
 			// var offsetX = $thumb.offset().left - $nav.offset().left - parseInt($thumb.css('marginLeft'));
 			var offsetX = idx * ($thumb.outerWidth() + parseInt($thumb.css('marginLeft')) + parseInt($thumb.css('marginRight')));
-			switch(_options.animation_method) {
+			switch (_options.animation_method) {
 				case 'css':
 					// move the nav after a set timer to make animations smoother
 					setTimeout(function() {
 						$nav.css({
 							left: -offsetX
 						});
-					},0)
-					
-				break;
+					}, 0)
+
+					break;
 				case 'js':
 					setTimeout(function() {
 						$nav.animate({
 							left: -offsetX
 						}, _options.navigationAnimationOptions)
-					},0)
-				break;
+					}, 0)
+					break;
 			}
 
 			// Show image
@@ -275,7 +279,7 @@
 			}
 
 		},
-		selectImageAtIndex: function( chapter_id, index ) {
+		selectImageAtIndex: function(chapter_id, index) {
 			var that = this;
 			this.find('#fscarousel_canvas').children().each(function() {
 				var this_chapter_id = $(this).attr('data-chapter-id');
@@ -285,13 +289,29 @@
 				}
 			})
 		},
-		selectChapterImageAtDelta: function ( chapter_id, image_delta ) {
+		selectChapterImageAtDelta: function(chapter_id, image_delta) {
 			if (_currentChapter != chapter_id) {
 				this.fscarousel('selectChapter', chapter_id, false);
 			}
 			this.fscarousel('selectImageAtDelta', chapter_id, image_delta);
-		},		
-		selectImageAtDelta: function (chapter_id, delta) {
+		},
+		selectChapterImageById: function(chapter_id, image_id) {
+			if (_currentChapter != chapter_id) {
+				this.fscarousel('selectChapter', chapter_id, false);
+			}
+			this.fscarousel('selectImageById', chapter_id, image_id);
+		},
+		selectImageById: function(chapter_id, image_id) {
+			var that = this;
+			this.find('.fscarousel-chapter-images').each(function() {
+				var this_chapter_id = $(this).attr('data-chapter-id');
+				if (this_chapter_id == chapter_id) {
+					var $img = $(this).find('.fscarousel-image[data-image-id="' + image_id + '"]');
+					that.fscarousel('showImage', $img);
+				}
+			})
+		},
+		selectImageAtDelta: function(chapter_id, delta) {
 			var that = this;
 			this.find('.fscarousel-chapter-images').each(function() {
 				var this_chapter_id = $(this).attr('data-chapter-id');
@@ -299,19 +319,19 @@
 					var $img = $(this).find('.fscarousel-image[data-delta="' + delta + '"]');
 					that.fscarousel('showImage', $img);
 				}
-			})	
+			})
 		},
 		showImage: function(element) {
 			if (element == undefined) {
 				element = _currentImage;
 			}
 			_currentImage = element;
-			_currentImageDelta = element.attr('data-delta');
+			_currentImageId = element.attr('data-image-id');
 			var display_method = _options.display_method;
 			if (display_method == 'stacked') {
-				var chapter_top 	= element.parents('.fscarousel-chapter-images').position().top,
-					image_top 		= element.offset().top;
-				switch(_options.animation_method) {
+				var chapter_top = element.parents('.fscarousel-chapter-images').position().top,
+					image_top = element.offset().top;
+				switch (_options.animation_method) {
 					case 'css':
 						var y = lastTransform - image_top
 						var multiplier = Math.ceil(Math.abs(Math.round((y - lastTransform) / $(window).height())) / 10);
@@ -329,30 +349,30 @@
 							transform: 'translate3d(0px,' + y + 'px,0px)',
 							//marginTop: y
 						});
-					break;
+						break;
 					case 'js':
 						var y = -1 * element.position().top;
 						lastTransform = y;
 						element.parents('.fscarousel-chapter-images').siblings().hide();
 						element.parents('.fscarousel-chapter-images').show().animate({
 							top: y
-						},_options.slideAnimationOptions);
-					break;
+						}, _options.slideAnimationOptions);
+						break;
 				}
-			}
-			else if (display_method == 'slide') {
+			} else if (display_method == 'slide') {
 				// default
 				$("#fscarousel_canvas").children().children().not(element).hide();
 				element.show(_options.slideAnimationOptions);
 			}
 			var delta = element.attr('data-delta');
+			var image_id = element.attr('data-image-id');
 			var chapter_id = element.parents('.fscarousel-chapter-images').attr('data-chapter-id');
 			$('.fscarousel-chapter-thumb').removeClass('active');
 
-			var $thumb = $('.fscarousel-chapter-thumbs[data-chapter-id="' + chapter_id + '"] .fscarousel-chapter-thumb-img[data-delta="' + delta + '"]')
-			.parents('.fscarousel-chapter-thumb');
+			var $thumb = $('.fscarousel-chapter-thumbs[data-chapter-id="' + chapter_id + '"] .fscarousel-chapter-thumb-img[data-image-id="' + image_id + '"]')
+				.parents('.fscarousel-chapter-thumb');
 
-			$thumb.addClass('active');			
+			$thumb.addClass('active');
 			this.fscarousel('placeImageInfo');
 
 			//Facilitate moving around the nav by nudging it as it approaches window edges
@@ -407,32 +427,28 @@
 		},
 		gotoNextSlide: function() {
 			var $currentChapter = $('.fscarousel-chapter-thumbs[data-chapter-id=' + _currentChapter + ']');
-			var $currentThumb = $currentChapter.find('.fscarousel-chapter-thumb-img[data-delta='+ _currentImageDelta + ']');
+			var $currentThumb = $currentChapter.find('.fscarousel-chapter-thumb-img[data-image-id=' + _currentImageId + ']');
 			if ($currentThumb.parents('.fscarousel-chapter-thumb').next().length) {
 				$currentThumb.parents('.fscarousel-chapter-thumb').next().find('a').click();
-			}
-			else {
+			} else {
 				if ($currentChapter.next().length) {
 					$currentChapter.next().find('.fscarousel-chapter-thumb-cover').click();
-				}
-				else {
+				} else {
 					$('.fscarousel-chapter-thumbs').eq(0).find('.fscarousel-chapter-thumb-cover').click();
 				}
 			}
 		}
 	};
 
-	$.fn.fscarousel = function( methodOrOptions ) {
-		if ( methods[methodOrOptions] ) {
+	$.fn.fscarousel = function(methodOrOptions) {
+		if (methods[methodOrOptions]) {
 			return methods[methodOrOptions].apply(this, Array.prototype.slice.call(arguments, 1));
+		} else if (typeof methodOrOptions === 'object' || !methodOrOptions) {
+			// Default to "init"	
+			return methods.init.apply(this, arguments);
+		} else {
+			$.error('Method ' + methodOrOptions + ' does not exist on jQuery.fscarousel');
 		}
-		else if (typeof methodOrOptions === 'object' || !methodOrOptions ) {
-            // Default to "init"	
-            return methods.init.apply( this, arguments );
-        } 
-        else {
-            $.error( 'Method ' +  methodOrOptions + ' does not exist on jQuery.fscarousel' );
-        }
 	};
 
 	$.fn.fscarousel.defaults = {
@@ -448,7 +464,7 @@
 			effect: 'fade',
 		},
 		infoBoxAnimationOptions: {
-			effect: 'fade', 
+			effect: 'fade',
 			direction: 'right',
 			duration: 500
 		},

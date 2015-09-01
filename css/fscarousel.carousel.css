@@ -3382,3 +3382,10 @@ html.no-csstransforms3d .fscarousel-wrapper .fscarousel-nav-select {
   position: relative;
   top: 35%;
 }
+
+/* line 386, ../sass/fscarousel.carousel.scss */
+#overlay #spinner {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+}

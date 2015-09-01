@@ -207,3 +207,20 @@ fieldset.collapsible {
 	list-style: inside disc;
 	font-size: 12px;
 }
+
+.message-dialog {
+	background-color: #26ce1e;
+	color: #fff;
+	.ui-dialog-titlebar {
+		font-weight: bold;
+	}
+	.ui-dialog-titlebar-close {
+		display: none;
+	}
+}
+
+
+.form-item-display_method,
+.form-item-animation_method {
+	display: none;
+}

@@ -257,3 +257,23 @@ fieldset.collapsible.collapsed .fieldset-legend {
   list-style: inside disc;
   font-size: 12px;
 }
+
+/* line 211, ../sass/fscarousel.carousel_form.scss */
+.message-dialog {
+  background-color: #26ce1e;
+  color: #fff;
+}
+/* line 214, ../sass/fscarousel.carousel_form.scss */
+.message-dialog .ui-dialog-titlebar {
+  font-weight: bold;
+}
+/* line 217, ../sass/fscarousel.carousel_form.scss */
+.message-dialog .ui-dialog-titlebar-close {
+  display: none;
+}
+
+/* line 223, ../sass/fscarousel.carousel_form.scss */
+.form-item-display_method,
+.form-item-animation_method {
+  display: none;
+}

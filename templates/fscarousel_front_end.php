@@ -26,8 +26,12 @@
 		<?php endif; ?>
 		<script type="text/javascript" src="<?php print $settings['plugins_url']; ?>/js/modernizr.custom.21535.js"></script>
 		<script type="text/javascript" src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
-		<link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/themes/smoothness/jquery-ui.css">
-		<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.js"></script>
+		<link rel="stylesheet" type="text/css" href="<?php print $settings['plugins_url']; ?>/css/jquery-ui.min.css" />
+		<link rel="stylesheet" type="text/css" href="<?php print $settings['plugins_url']; ?>/css/jquery-ui.structure.min.css" />		
+		<link rel="stylesheet" type="text/css" href="<?php print $settings['plugins_url']; ?>/css/jquery-ui.theme.min.css" />		
+		<script type="text/javascript" src="<?php print $settings['plugins_url']; ?>/js/spin.js"></script>
+		<script type="text/javascript" src="<?php print $settings['plugins_url']; ?>/js/jquery.spin.js"></script>
+		<script type="text/javascript" src="<?php print $settings['plugins_url']; ?>/js/jquery-ui.min.js"></script>
 		<script type="text/javascript" src="<?php print $settings['plugins_url']; ?>/js/jquery.once.min.js"></script>
 
 		<link rel="stylesheet" type="text/css" href="<?php print $settings['plugins_url']; ?>/css/fscarousel.carousel.css" />
@@ -82,12 +86,13 @@
 								 data-caption="<?php print $image->caption; ?>" 
 								 data-title="<?php print $image->title; ?>"
 								 class="fscarousel-image"
-								 id="chapter_<?php print $chapter_id; ?>_image_<?php print $image->delta; ?>"
+								 id="chapter_<?php print $chapter_id; ?>_image_<?php print $image->image_id; ?>"
 								 data-delta="<?php print $image->delta; ?>"
+								 data-image-id="<?php print $image->image_id; ?>"
 							 ></div>
 							 <?php
 							 	// add thumbnail
-							 	$thumbs[$chapter_id]['thumbs'][$image->delta] = array('fileurl' => isset($image->thumb) ?  $image->thumb : $image->fileurl, 'caption' => $image->caption);
+							 	$thumbs[$chapter_id]['thumbs'][$image->image_id] = array('fileurl' => isset($image->thumb) ?  $image->thumb : $image->fileurl, 'caption' => $image->caption);
 							 ?>
 						<?php endforeach; ?>
 					</div>
@@ -106,14 +111,14 @@
 									<div class="fscarousel-chapter-thumb-cover fscarousel-chapter-thumb">
 										<h2 class="fscarousel-chapter-thumb-cover-title"><?php print $chapter_thumbs['title']; ?></h2>
 									</div>
-									<?php foreach($chapter_thumbs['thumbs'] as $image_delta => $image): ?>
+									<?php foreach($chapter_thumbs['thumbs'] as $image_id => $image): ?>
 										<div class="fscarousel-chapter-thumb-thumb fscarousel-chapter-thumb">
 											<a href="#" class="fscarousel-chapter-thumb-link">
 												<img src="<?php print $image['fileurl']; ?>"
 													 title="<?php print $image['caption']; ?>"
 													 alt="<?php print $image['caption']; ?>"
 													 class="fscarousel-chapter-thumb-img"
-													 data-delta="<?php print $image_delta; ?>"
+													 data-image-id="<?php print $image_id;  ?>"
 												/>
 											</a>
 										</div>
@@ -135,11 +140,14 @@
 					<img src="<?php print $settings['logo']; ?>" />
 				</div>
 			<?php endif; ?>
-			<div class="loading"><img src="<?php print $settings['plugins_url']; ?>/images/loading.gif" /></div>
+			<div class="loading"><div id="spinner"></div></div>
 			<p>Loading...</p>
 		</div>
 		<script type="text/javascript">
 			(function($) {
+				$(document).ready(function() {
+					$("#spinner").spin();
+				});
 				$(window).load(function() {
 					var settings = <?php print json_encode($settings); ?>;
 					$.extend($.fn.fscarousel.defaults, settings);

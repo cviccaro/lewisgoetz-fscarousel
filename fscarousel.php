@@ -26,6 +26,7 @@ add_action( 'wp_ajax_fscarousel_remove_chapter', 'fscarousel_remove_chapter_ajax
 add_action( 'wp_ajax_fscarousel_upload_image', 'fscarousel_upload_image_ajax' );
 add_action( 'wp_ajax_fscarousel_get_image_url', 'fscarousel_get_image_url_ajax' );
 add_action( 'wp_ajax_fscarousel_upload_si_ajax', 'fscarousel_upload_si_ajax' ); // upload a settings image
+add_action( 'wp_ajax_fscarousel_refresh_thumbs', 'fscarousel_refresh_thumbs_ajax' ); // upload a settings image
 
 /*
  * admin_menu Action Hooks
@@ -43,7 +44,7 @@ function fscarousel_admin_edit() {
 	echo '<h1 id="page-title" class="page-title">Edit the Carousel</h1>';
 	echo '<div class="page-description"><ul class="help-list"><li>Click any heading to collapse or expand it.</li><li>Chapters and Images are both sorted by weight.  Items with less weight appear at the top.</li></ul></div>';
 	echo wp_get_form('fscarousel-carousel-form');
-}	
+}
 
 // Settings Page
 function fscarousel_admin_settings() {
@@ -64,8 +65,10 @@ function fscarousel_register_forms() {
  * Settings Form
  */
 function fscarousel_settings_form($form) {
+	$chapters = fscarousel_get_chapters();
 	$settings = fscarousel_get_settings();
-
+	//fscarousel_refresh_thumbs();
+	echo '<a href="#" class="fscarousel-purge-thumbs">Refresh Thumbnails</a>';
 	// SETTING: Page Title
 	$page_title = WP_Form_Element::create('text')
 			->set_name('page_title')
@@ -152,7 +155,7 @@ function fscarousel_settings_form($form) {
 		$custom_exit = WP_Form_Element::create('text')
 							->set_name('exit_destination_custom')
 							->set_label('Custom Exit URL')
-							->set_description('Set the URL to goto when the user exits the app');	
+							->set_description('Set the URL to goto when the user exits the app');
 		if (isset($settings['exit_destination_custom']) && $settings['exit_destination_custom']) {
 			$custom_exit->set_default_value($settings['exit_destination_custom']);
 		}
@@ -183,7 +186,7 @@ function fscarousel_settings_form($form) {
 	$interval = WP_Form_Element::create('text')
 						->set_name('interval')
 						->set_label('Slide Interval (ms)')
-						->set_description('Set the duration a slide appears for in the slideshow when the slideshow is playing.  Leave blank for a default value of 5000ms');	
+						->set_description('Set the duration a slide appears for in the slideshow when the slideshow is playing.  Leave blank for a default value of 5000ms');
 	if (isset($settings['interval']) && $settings['interval']) {
 		$interval->set_default_value($settings['interval']);
 	}
@@ -227,9 +230,9 @@ function fscarousel_settings_form($form) {
 											->set_name($name)
 											->set_label($label)
 											->set_attribute('class', 'form-item animation-options ' . $name);
-				
 
-				// Allow configuration of duration							
+
+				// Allow configuration of duration
 			    $duration = WP_Form_Element::create('text')
 			    							->set_name($name . '[duration]')
 			    							->set_label('Duration (ms)')
@@ -283,6 +286,12 @@ function fscarousel_settings_form($form) {
 	// Queue styles and scripts
 	wp_enqueue_style('carousel_form_css',plugins_url('css/fscarousel.carousel_form.css', __FILE__));
 	wp_enqueue_script("jquery_cookie",  plugins_url("js/jquery.cookie.js", __FILE__), FALSE);
+	wp_enqueue_script("jquery_ui",  plugins_url("js/jquery-ui.min.js", __FILE__), FALSE);
+	wp_enqueue_style('jquery_ui_css',plugins_url('css/jquery-ui.min.css', __FILE__));
+	wp_enqueue_style('jquery_ui_structure_css',plugins_url('css/jquery-ui.structure.min.css', __FILE__));
+	wp_enqueue_style('jquery_ui_theme_css',plugins_url('css/jquery-ui.theme.min.css', __FILE__));
+	wp_enqueue_script("spin_js",  plugins_url("js/spin.js", __FILE__), FALSE);
+	wp_enqueue_script("spin_jquery",  plugins_url("js/jquery.spin.js", __FILE__), FALSE);
 	wp_enqueue_script("carousel_settings_js",  plugins_url("js/fscarousel.settings_form.js", __FILE__), FALSE);
 }
 
@@ -305,6 +314,7 @@ function fscarousel_settings_form_submit(WP_Form_Submission $submission, WP_Form
 	$gather = array('autoplay', 'animation_method', 'display_method', 'carousel_title', 'page_title', 'infobox_show', 'interval', 'exit_destination', 'exit_destination_custom');
 	foreach($gather as $name) {
 		$value = $submission->get_value($name);
+
 		switch($name) {
 			case 'infobox_show':
 			case 'autoplay':
@@ -347,13 +357,13 @@ function fscarousel_carousel_form($form) {
 	/**
 	 * Preliminary CRUD tasks
 	 */
-		
+
 	// Remove Image
 	if (isset($_COOKIE['fscarousel_remove_image'])) {
 		$remove_info = explode(',',$_COOKIE['fscarousel_remove_image']);
 		$remove_image_chapter_id = $remove_info[0];
-		$remove_image_delta = $remove_info[1];
-		fscarousel_unregister_image($remove_image_chapter_id, $remove_image_delta);
+		$remove_image_image_id = $remove_info[1];
+		fscarousel_unregister_image_by_id($remove_image_image_id);
 		setcookie('fscarousel_remove_image', '', time() - 3600, '/');
 	}
 
@@ -394,7 +404,8 @@ function fscarousel_carousel_form($form) {
 			$chapter_fieldset = WP_Form_Element::create('fieldset')
 								->set_name($chapter_prefix)
 								->set_label("Chapter " . ($i + 1))
-								->set_attribute('class', 'chapter-fieldset collapsible');
+								->set_attribute('class', 'chapter-fieldset collapsible')
+								->set_attribute('id', 'chapter_' . $i . '_fieldset');
 			$chapter_id_field = WP_Form_Element::create('hidden')
 								->set_name($chapter_prefix . '[chapter_id]')
 								->set_default_value($chapter_id)
@@ -408,7 +419,7 @@ function fscarousel_carousel_form($form) {
 								->set_name($chapter_prefix . '[weight]')
 								->set_label('Weight')
 								->set_attribute('class', 'chapter-weight');
-			$chapter_weight->set_default_value($chapter->weight);	
+			$chapter_weight->set_default_value($chapter->weight);
 
 			$chapter_remove_button = WP_Form_Element::create('button')
 							->set_view(new WP_Form_View_Button())
@@ -437,7 +448,7 @@ function fscarousel_carousel_form($form) {
 										->set_name($chapter_image_prefix . '[weight]')
 										->set_label('Weight')
 										->set_attribute('class', 'image-weight')
-										->set_default_value(0);							
+										->set_default_value(0);
 				$empty_chapter_image_title = WP_Form_Element::create('text')
 										->set_name($chapter_image_prefix . '[title]')
 										->set_label('Title')
@@ -466,20 +477,29 @@ function fscarousel_carousel_form($form) {
 			else {
 				$n = 0;
 				$highest_weight = 0;
+				$highest_delta = 0;
+
 				foreach($chapter_images as $image) {
 					$chapter_image_prefix = $chapter_images_prefix . '[' . $n . ']';
 					$chapter_image_fieldset = WP_Form_Element::create('fieldset')
 												->set_name($chapter_image_prefix)
 												->set_label('Image ' . ($n + 1))
-												->set_attribute('class', 'chapter-image-fieldset');
+												->set_attribute('class', 'chapter-image-fieldset')
+												->set_attribute('id', 'chapter_' . $chapter_id . '_image_' . $n);
 
 					$chapter_image = WP_Form_Element::create('file')
 									->set_name($chapter_image_prefix . '[image]')
 									->set_label('Choose file')
 									->set_attribute('class', 'chapter-image')
 									->set_attribute('data-delta', $image->delta)
+									->set_attribute('data-image-id', $image->image_id)
 									->set_default_value(basename($image->filepath))
 									->set_attribute('data-url', _fscarousel_baseurl() . $image->fileurl);
+					$thumb = fscarousel_get_image_thumb($image->image_id);
+					if ($thumb) {
+						// use thumb 
+						$chapter_image->set_attribute('data-url',$thumb->fileurl);
+					}
 					$chapter_image_chapter_id = WP_Form_Element::create('text')
 												->set_name($chapter_image_prefix . '[image][chapter_id]')
 												->set_attribute('class', 'hidden chapter-id-hidden')
@@ -488,22 +508,25 @@ function fscarousel_carousel_form($form) {
 											->set_name($chapter_image_prefix . '[weight]')
 											->set_label('Weight')
 											->set_attribute('class', 'image-weight')
-											->set_default_value($image->weight);		
+											->set_default_value($image->weight);
 
 					if ($image->weight > $highest_weight) {
 						$highest_weight = $image->weight;
 					}
+					if ($image->delta > $highest_delta) {
+						$highest_delta = $image->delta;
+					}
 
-					$chapter_image_delta = WP_Form_Element::create('text')
-												->set_name($chapter_image_prefix . '[image][delta]')
+					$chapter_image_id = WP_Form_Element::create('text')
+												->set_name($chapter_image_prefix . '[image][image_id]')
 												//->set_label('Delta')
-												->set_attribute('class', 'hidden delta-hidden')
-												->set_default_value($image->delta);
+												->set_attribute('class', 'hidden image-id-hidden')
+												->set_default_value($image->image_id);
 					$chapter_image_title = WP_Form_Element::create('text')
 											->set_name($chapter_image_prefix . '[title]')
 											->set_label('Title')
 											->set_attribute('class', 'chapter-image-title')
-											->set_default_value($image->title);												
+											->set_default_value($image->title);
 					$chapter_image_caption = WP_Form_Element::create('textarea')
 											->set_name($chapter_image_prefix . '[caption]')
 											->set_label('Caption')
@@ -512,10 +535,10 @@ function fscarousel_carousel_form($form) {
 
 					$chapter_image_fieldset->add_element($chapter_image);
 					$chapter_image_fieldset->add_element($chapter_image_chapter_id);
-					$chapter_image_fieldset->add_element($chapter_image_delta);
+					$chapter_image_fieldset->add_element($chapter_image_id);
 					$chapter_image_fieldset->add_element($chapter_image_title);
 					$chapter_image_fieldset->add_element($chapter_image_caption);
-					$chapter_image_fieldset->add_element($chapter_image_weight);	
+					$chapter_image_fieldset->add_element($chapter_image_weight);
 
 					$chapter_images_fieldset->add_element($chapter_image_fieldset);
 					$n++;
@@ -530,7 +553,7 @@ function fscarousel_carousel_form($form) {
 											->set_name($chapter_image_prefix . '[image]')
 											->set_label('Choose file')
 											->set_attribute('class', 'chapter-image')
-											->set_attribute('data-delta', $n);
+											->set_attribute('data-delta',-1);
 					$new_chapter_image_weight = WP_Form_Element::create('text')
 											->set_name($chapter_image_prefix . '[weight]')
 											->set_label('Weight')
@@ -539,7 +562,7 @@ function fscarousel_carousel_form($form) {
 					$new_chapter_image_title = WP_Form_Element::create('text')
 											->set_name($chapter_image_prefix . '[title]')
 											->set_label('Title')
-											->set_attribute('class', 'chapter-image-title');											
+											->set_attribute('class', 'chapter-image-title');
 					$new_chapter_image_caption = WP_Form_Element::create('textarea')
 											->set_name($chapter_image_prefix . '[caption]')
 											->set_label('Caption')
@@ -550,7 +573,7 @@ function fscarousel_carousel_form($form) {
 									->set_name($chapter_image_prefix . '[upload]')
 									->set_label('Upload')
 									->set_attribute('class', 'upload-image')
-									->set_attribute('data-delta', $n);
+									->set_attribute('data-delta', -1);
 
 					$chapter_image_fieldset->add_element($new_chapter_image);
 					$chapter_image_fieldset->add_element($upload_button);
@@ -609,6 +632,9 @@ function fscarousel_carousel_form($form) {
 	wp_enqueue_script("jquery_ui",  plugins_url("js/jquery-ui.min.js", __FILE__), FALSE);
 	wp_enqueue_style('jquery_ui_css',plugins_url('css/jquery-ui.min.css', __FILE__));
 	wp_enqueue_style('jquery_ui_structure_css',plugins_url('css/jquery-ui.structure.min.css', __FILE__));
+	wp_enqueue_style('jquery_ui_theme_css',plugins_url('css/jquery-ui.theme.min.css', __FILE__));	
+	wp_enqueue_script("spin_js",  plugins_url("js/spin.js", __FILE__), FALSE);
+	wp_enqueue_script("spin_jquery",  plugins_url("js/jquery.spin.js", __FILE__), FALSE);
 	wp_enqueue_script("carousel_form_js",  plugins_url("js/fscarousel.carousel_form.js", __FILE__), FALSE);
 }
 
@@ -649,7 +675,7 @@ function fscarousel_carousel_form_submit(WP_Form_Submission $submission, WP_Form
    			fscarousel_update_chapter($chapter_id, $chapter);
    		}
    		else {
-   			fscarousel_insert_chapter($chapter_id, $chapter);	
+   			fscarousel_insert_chapter($chapter_id, $chapter);
    		}
    	}
 }
@@ -683,7 +709,11 @@ function fscarousel_insert_chapter($chapter_id, $chapter) {
 function fscarousel_remove_chapter($chapter_id) {
 	global $wpdb;
 	$table_name = $wpdb->prefix . 'fscarousel_chapters';
-	return $wpdb->delete($table_name, array('chapter_id' => $chapter_id), array('%d'));
+	$chapter_deleted = $wpdb->delete($table_name, array('chapter_id' => $chapter_id), array('%d'));
+	// foreign keys should take care of deleting images and thumbs
+	// $table_name = $wpdb->prefix . 'fscarousel_images';
+	// $deleted = $wpdb->delete($table_name, array('chapter_id' => $chapter_id), array('%d'));
+	return $chapter_deleted;
 }
 
 function fscarousel_update_chapter_images($images) {
@@ -694,9 +724,9 @@ function fscarousel_update_chapter_images($images) {
 			// previously uploaded
 			// update attributes
 			$table_name = $wpdb->prefix . 'fscarousel_images';
-			$query = "UPDATE $table_name SET caption = %s, title = %s, weight = %d WHERE chapter_id = %d AND delta = %d";
+			$query = "UPDATE $table_name SET caption = %s, title = %s, weight = %d WHERE image_id = %d";
 			$image_updated = $wpdb->query(
-				$wpdb->prepare($query, $image['caption'], $image['title'], $image['weight'], $image['image']['chapter_id'], $image['image']['delta'])
+				$wpdb->prepare($query, $image['caption'], $image['title'], $image['weight'], $image['image']['image_id'])
 			);
 		}
 	}
@@ -751,6 +781,7 @@ function fscarousel_upload_si_ajax() {
 }
 
 function fscarousel_upload_image_ajax() {
+	global $wpdb;
 	$baseurl = _fscarousel_baseurl();
 	$data = $_POST['data'];
 	// base64 file data
@@ -760,6 +791,7 @@ function fscarousel_upload_image_ajax() {
 
 	$chapter_id = $data['chapter_id'];
 	$image_delta = $data['delta'];
+	$image_id = isset($data['image_id']) ? $data['image_id'] : NULL;
 	$caption = $data['caption'];
 	$title = $data['title'];
 	$weight = $data['weight'];
@@ -768,16 +800,23 @@ function fscarousel_upload_image_ajax() {
 	if (file_exists($destination)) {
 		@unlink($destination);
 	}
-	fscarousel_unregister_image($chapter_id, $image_delta);
-	
+	if (!is_null($image_id)) {
+		fscarousel_unregister_image_by_id($image_id);
+	}
+
+
 	file_put_contents($destination, $file_data);
 	$destinationURL = str_replace($baseurl, '', $upload_dir['url']) . '/' . $data['file_name'];
 	$inserted = fscarousel_register_image($destination, $destinationURL, $chapter_id, $image_delta, $caption, $title, $weight);
 
+	$output = array('inserted' => FALSE);
+	if ($inserted) {
+		//$image = fscarousel_get_chapter_image_by_id($wpdb->insert_id);
+		$output['inserted'] = $wpdb->insert_id;
+		// $output['url'] = $image->fileurl;
+	}
 	//file_put_contents()
-	wp_send_json(array(
-		'inserted' => $inserted,
-	));
+	wp_send_json($output);
 }
 
 function fscarousel_get_image_url_ajax() {
@@ -812,7 +851,32 @@ function fscarousel_unregister_image($chapter_id, $image_delta) {
 	return $wpdb->delete($table_name, array('chapter_id' => $chapter_id, 'delta' => $image_delta), array('%d', '%d'));
 }
 
-/** 
+function fscarousel_unregister_image_by_id($image_id) {
+	global $wpdb;
+	$table_name = $wpdb->prefix . 'fscarousel_images';
+	$image = fscarousel_get_chapter_image_by_id($image_id);
+	if ($image && file_exists($image->filepath)) {
+		@unlink($image->filepath);
+	}
+	return $wpdb->delete($table_name, array('image_id' => $image_id), array('%d'));
+}
+
+function fscarousel_register_thumb($image_id, $thumb_path, $thumb_url) {
+	global $wpdb;
+	$table_name = $wpdb->prefix . 'fscarousel_thumbs';
+	return $wpdb->query(
+		$wpdb->prepare("INSERT INTO $table_name (image_id, filepath, fileurl, created) VALUES (%d, %s, %s, %s)", $image_id, $thumb_path, $thumb_url, time())
+	);
+}
+
+function fscarousel_unregister_thumb($thumb) {
+	global $wpdb;
+	$table_name = $wpdb->prefix . 'fscarousel_thumbs';
+	@unlink($thumb->filepath);
+	return $wpdb->delete($table_name, array('thumb_id' => $thumb->thumb_id, array('%d')));
+}
+
+/**
  * Chapter Properties get/set
  */
 function fscarousel_get_chapter($chapter_id) {
@@ -884,11 +948,15 @@ function fscarousel_get_chapter_images($chapter_id) {
 		$path = $result->filepath;
 		$dir = dirname($path);
 		$basename = basename($path);
-		$thumb = $dir . '/thumbs//' . $basename;
-		$urlPath = str_replace($basename, '', $result->fileurl);
-		if (file_exists($thumb)) {
-			$result->thumb = _fscarousel_baseurl() . $urlPath . 'thumbs/' . $basename;
+		$thumb = fscarousel_get_image_thumb($result->image_id);
+		if (!is_null($thumb)) {
+			$result->thumb = $thumb->fileurl;
 		}
+		// $thumb = $dir . '/thumbs//' . $basename;
+		// $urlPath = str_replace($basename, '', $result->fileurl);
+		// if (file_exists($thumb)) {
+		// 	$result->thumb = _fscarousel_baseurl() . $urlPath . 'thumbs/' . $basename;
+		// }
 	}
 	return $results;
 }
@@ -901,11 +969,45 @@ function fscarousel_get_chapter_image($chapter_id, $delta) {
 	$path = $result->filepath;
 	$dir = dirname($path);
 	$basename = basename($path);
-	$thumb = $dir . '//thumbs/thumb_' . $basename;
-	$urlPath = str_replace($basename, '', $result->fileurl);
-	if (file_exists($thumb)) {
-		$result->thumb = _fscarousel_baseurl() . '/' . $urlPath . 'thumbs/thumb_' . $basename;
+	$thumb = fscarousel_get_image_thumb($result->image_id);
+	if (!is_null($thumb)) {
+		$result->thumb = $thumb->fileurl;
 	}
+	// $thumb = $dir . '//thumbs/thumb_' . $basename;
+	// $urlPath = str_replace($basename, '', $result->fileurl);
+	// if (file_exists($thumb)) {
+	// 	$result->thumb = _fscarousel_baseurl() . '/' . $urlPath . 'thumbs/thumb_' . $basename;
+	// }
+	return $result;
+}
+
+function fscarousel_get_chapter_image_by_id($image_id) {
+	global $wpdb;
+	$table_name = $wpdb->prefix . 'fscarousel_images';
+	$query = $wpdb->prepare("SELECT * FROM $table_name WHERE image_id = %d", $image_id);
+	$result = $wpdb->get_row($query);
+	$path = $result->filepath;
+	$dir = dirname($path);
+	$basename = basename($path);
+	$thumb = fscarousel_get_image_thumb($result->image_id);
+	if (!is_null($thumb)) {
+		$result->thumb = $thumb->fileurl;
+	}
+	return $result;
+}
+
+function fscarousel_get_image_thumbs() {
+	global $wpdb;
+	$table_name = $wpdb->prefix . 'fscarousel_thumbs';
+	$results = $wpdb->get_results("SELECT * FROM $table_name");
+	return $results;
+}
+
+function fscarousel_get_image_thumb($image_id) {
+	global $wpdb;
+	$table_name = $wpdb->prefix . 'fscarousel_thumbs';
+	$query = $wpdb->prepare("SELECT * FROM $table_name WHERE image_id = %d", $image_id);
+	$result = $wpdb->get_row($query);
 	return $result;
 }
 
@@ -953,6 +1055,25 @@ function fscarousel_update_settings($settings) {
 			else {
 				$did_update = $wpdb->query(
 					$wpdb->prepare("INSERT INTO $table_name (name, value) VALUES (%s,%s)", $name, $value)
+				);
+				if ($did_update) {
+					$updated++;
+				}
+			}
+		}
+		else if ($value === FALSE || $value === TRUE) {
+			$current = $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM $table_name WHERE name = %s",$name));
+			if ($current) {
+				$did_update = $wpdb->query(
+					$wpdb->prepare("UPDATE $table_name SET value = %s WHERE name = %s", $value ? 1 : 0, $name)
+				);
+				if ($did_update) {
+					$updated++;
+				}
+			}
+			else {
+				$did_update = $wpdb->query(
+					$wpdb->prepare("INSERT INTO $table_name (name, value) VALUES (%s,%s)", $name, $value ? 1 : 0)
 				);
 				if ($did_update) {
 					$updated++;
@@ -1007,6 +1128,7 @@ function fscarousel_activate() {
 	require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
 	$charset_collate = $wpdb->get_charset_collate();
 
+	// Chapters table
 	$table_name = $wpdb->prefix . 'fscarousel_chapters';
 
 	$sql = "CREATE TABLE $table_name (
@@ -1019,6 +1141,7 @@ function fscarousel_activate() {
 	) $charset_collate;";
 	dbDelta( $sql );
 
+	// Images table
 	$table_name = $wpdb->prefix . 'fscarousel_images';
 
 	$sql = "CREATE TABLE $table_name (
@@ -1035,6 +1158,21 @@ function fscarousel_activate() {
 	) $charset_collate;";
 	dbDelta( $sql );
 
+	// Thumbs table
+	$table_name = $wpdb->prefix . 'fscarousel_thumbs';
+
+	$sql = "CREATE TABLE $table_name (
+	  thumb_id mediumint(9) NOT NULL AUTO_INCREMENT,
+	  image_id mediumint(9) NOT NULL,
+	  filepath varchar(255) NOT NULL,
+	  fileurl varchar(255) NOT NULL,
+	  created datetime DEFAULT '0000-00-00 00:00:00' NOT NULL,
+	  modified datetime DEFAULT '0000-00-00 00:00:00',
+	  UNIQUE KEY thumb_id (thumb_id)
+	) $charset_collate;";
+	dbDelta( $sql );	
+
+	// Settings table
 	$table_name = $wpdb->prefix . 'fscarousel_settings';
 
 	$sql = "CREATE TABLE $table_name (
@@ -1084,7 +1222,7 @@ function _fscarousel_settings_easing_options() {
 }
 
 function _fscarousel_settings_animation_categories() {
-	return array( 
+	return array(
 		'slideAnimationOptions' => 'Default Slide Animation Options',
    		'infoBoxAnimationOptions' => 'Default Infobox Animation Options',
    		'navigationAnimationOptions' => 'Default Navigation Animation Options'
@@ -1134,13 +1272,15 @@ function filter_file_decorators( $decorators, $element ) {
 		break;
 		break;
 		case 'textarea':
-			$decorators['WP_Form_Decorator_HtmlTag']['attributes'] = array('class' => 'textarea-wrapper');		
+			$decorators['WP_Form_Decorator_HtmlTag']['attributes'] = array('class' => 'textarea-wrapper');
 		break;
 		case 'fieldset':
 		case 'hidden':
 		break;
 		default:
-			$decorators['WP_Form_Decorator_HtmlTag']['attributes'] = array('class' => 'form-item');
+
+			$label = strtolower(implode('_',explode(' ',$element->label)));
+			$decorators['WP_Form_Decorator_HtmlTag']['attributes'] = array('class' => 'form-item form-item-' . $label);
 	}
     return $decorators;
 }
@@ -1151,26 +1291,60 @@ function filter_file_decorators( $decorators, $element ) {
 add_action( 'fscarousel_make_thumbs', 'fscarousel_make_thumbs_task' );
 
 function fscarousel_make_thumbs_task() {
+	//log_error('running ' . __FUNCTION__);
   // Get chapters
   $chapters = fscarousel_get_chapters();
   foreach($chapters as $chapter) {
   	$chapter_id = $chapter->chapter_id;
-  	// Get chapter images
   	$chapter_images = fscarousel_get_chapter_images($chapter_id);
   	if ($chapter_images) {
   		// Iterate over images and create a thumbnail in subdirectory
   		foreach($chapter_images as $image) {
-  			$editor = wp_get_image_editor($image->filepath);
-  			if ( !is_wp_error($editor)) {
-  				$size = $editor->get_size();
-
-  				$dirname = dirname($image->filepath);
-  				$thumb_path = $dirname . '/thumbs//' . basename($image->filepath);
-
-  				$editor->resize(118, 177, true);
-  				$saved = $editor->save($thumb_path);	
+  			$thumb = fscarousel_get_image_thumb($image->image_id);
+  			if (is_null($thumb)) {
+//  				log_error('Thumb is null for image ' . $image->image_id . '.  So, creating it.');
+  				_fscarousel_make_thumb($image);
+  			}
+  			else {
+  				//log_error('Skipping thumb creation for image ' . $image->image_id . ' because it exists: ' . print_r($thumb, TRUE));
   			}
   		}
   	}
   }
+}
+
+function _fscarousel_make_thumb($image) {
+	$editor = wp_get_image_editor($image->filepath);
+	$upload_dir = wp_upload_dir();
+	if ( !is_wp_error($editor)) {
+		$dirname = dirname($image->filepath);
+		$thumb_path = $upload_dir['basedir'] . '/thumbs/' . basename($image->filepath);
+		$editor->resize(177, 118, true);
+		$saved = $editor->save($thumb_path);
+		if ($saved) {
+			$thumb_url = $upload_dir['baseurl'] . '/thumbs/' . basename($image->filepath);
+			$thumb_id = fscarousel_register_thumb($image->image_id, $thumb_path, $thumb_url);
+			return $thumb_id;
+		}
+	}
+	//log_error("failed to make thumb for image id " . $image->image_id);
+	return FALSE;
+}
+
+
+
+function fscarousel_purge_thumbs() {
+	//log_error('purging thumbs');
+	$thumbs = fscarousel_get_image_thumbs();
+	if ($thumbs) {
+		foreach($thumbs as $thumb) {
+			fscarousel_unregister_thumb($thumb);
+		}
+	}
+}
+
+function fscarousel_refresh_thumbs_ajax() {
+	fscarousel_purge_thumbs();
+	fscarousel_make_thumbs_task();
+	wp_send_json(array('success' => 'success'));
 }
